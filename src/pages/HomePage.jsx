@@ -2,12 +2,12 @@ import { Search } from "lucide-react"
 import RecipeCard from "../components/RecipeCard"
 import { useEffect, useState } from "react"
 import { getRandomColor } from './../lib/utlis';
-
+import debounce from 'lodash/debounce'
 
 const HomePage = () => {
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
-
+    const [query, setQuery] = useState("")
 
     const fetchRecipes = async (searchQuery) => {
         setLoading(true);
@@ -27,21 +27,23 @@ const HomePage = () => {
         }
     }
     useEffect(() => {
-
         fetchRecipes("chicken");
     }, [])
-    const handleSearchRecipe = (e) => {
-        e.preventDefault();
-        const searchQuery = e.target[0].value;
-        fetchRecipes(searchQuery);
+
+    const debouncedFetchResults = debounce(fetchRecipes, 300)
+    const handleChange = (e) => {
+
+        const value = e.target.value;
+        setQuery(value);
+        debouncedFetchResults(value);
     }
     return (
         <div className="flex-1 bg-[#faf9fb] p-10">
             <div className="max-w-screen-lg mx-auto">
-                <form onSubmit={handleSearchRecipe}>
+                <form >
                     <label className="input shadow-md flex items-center gap-2">
                         <Search size={24} />
-                        <input type="text" className="grow text-sm md:text-md" placeholder="What do you want to eat today?" />
+                        <input value={query} onChange={handleChange} type="text" className="grow text-sm md:text-md" placeholder="What do you want to eat today?" />
                     </label>
 
                 </form>
